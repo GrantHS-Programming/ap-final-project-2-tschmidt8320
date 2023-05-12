@@ -26,4 +26,10 @@ public class ProjectileScript : MonoBehaviour
     {
         
     }
+
+    void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("eueueueue");
+        Destroy(gameObject);
+    }
 }
