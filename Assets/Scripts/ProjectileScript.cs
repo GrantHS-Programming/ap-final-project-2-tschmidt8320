@@ -8,9 +8,11 @@ public class ProjectileScript : MonoBehaviour
     private Camera mainCam;
     private Rigidbody2D rb;
     public float force;
+    private float initTime;
     // Start is called before the first frame update
     void Start()
     {
+        initTime = Time.timeSinceLevelLoad;
         mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         rb = GetComponent<Rigidbody2D>();
         mousePos = mainCam.ScreenToWorldPoint(Input.mousePosition);
@@ -24,12 +26,15 @@ public class ProjectileScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(Time.timeSinceLevelLoad - initTime >= 5.0)
+        {
+            Destroy(gameObject);
+        }
     }
 
-    void OnTriggerEnter(Collider other)
+    void OnTriggerEnter2D(Collider2D c)
     {
-        Debug.Log("eueueueue");
+
         Destroy(gameObject);
     }
 }
