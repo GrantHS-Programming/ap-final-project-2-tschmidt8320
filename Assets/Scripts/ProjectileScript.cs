@@ -36,5 +36,7 @@ public class ProjectileScript : MonoBehaviour
     {
 
         Destroy(gameObject);
+        GameObject player = GameObject.Find("player");
+        player.GetComponent<TarodevController.PlayerController>().transform.position += new Vector3(0, 5, 0);
     }
 }
