@@ -17,6 +17,7 @@ namespace TarodevController {
         public bool JumpingThisFrame { get; private set; }
         public bool LandingThisFrame { get; private set; }
         public Vector3 RawMovement { get; set; }
+        public Vector3 ExtMovement;
         public bool Grounded => _colDown;
 
         private Vector3 _lastPosition;
@@ -32,7 +33,7 @@ namespace TarodevController {
             // Calculate velocity
             Velocity = (transform.position - _lastPosition) / Time.deltaTime;
             _lastPosition = transform.position;
-            RawMovement = Vector3.zero;
+            
 
             GatherInput();
             RunCollisionChecks();
@@ -41,7 +42,10 @@ namespace TarodevController {
             CalculateJumpApex(); // Affects fall speed, so calculate before gravity
             CalculateGravity(); // Vertical movement
             CalculateJump(); // Possibly overrides vertical
-
+            _currentHorizontalSpeed += ExtMovement.x;
+            _currentVerticalSpeed += ExtMovement.y;
+            ExtMovement = Vector3.zero;
+            
 
             MoveCharacter(); // Actually perform the axis movement
         }
@@ -193,7 +197,6 @@ namespace TarodevController {
             else {
                 // Add downward force while ascending if we ended the jump early
                 var fallSpeed = _endedJumpEarly && _currentVerticalSpeed > 0 ? _fallSpeed * _jumpEndEarlyGravityModifier : _fallSpeed;
-
                 // Fall
                 _currentVerticalSpeed -= fallSpeed * Time.deltaTime;
 
@@ -263,7 +266,7 @@ namespace TarodevController {
         // We cast our bounds before moving to avoid future collisions
         private void MoveCharacter() {
             var pos = transform.position + _characterBounds.center;
-            RawMovement += new Vector3(_currentHorizontalSpeed, _currentVerticalSpeed); // Used externally
+            RawMovement = new Vector3(_currentHorizontalSpeed, _currentVerticalSpeed); // Used externally
             var move = RawMovement * Time.deltaTime;
             var furthestPoint = pos + move;
 

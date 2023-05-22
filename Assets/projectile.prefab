@@ -100,6 +100,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   force: 20
+  explosionRadius: 20
+  explosionPower: 1.5
 --- !u!50 &65217527452630984
 Rigidbody2D:
   serializedVersion: 4

@@ -8,6 +8,8 @@ public class ProjectileScript : MonoBehaviour
     private Camera mainCam;
     private Rigidbody2D rb;
     public float force;
+    public float explosionRadius;
+    public float explosionPower;
     private float initTime;
     // Start is called before the first frame update
     void Start()
@@ -34,9 +36,18 @@ public class ProjectileScript : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D c)
     {
-
+        var hitObjects = Physics2D.OverlapCircleAll(transform.position, explosionRadius);
+        for(int i = 0; i < hitObjects.Length; i++)
+        {
+            if (hitObjects[i].tag.Equals("Player"))
+            {
+                var player = hitObjects[i];
+                var direction = Vector3.Normalize(player.transform.position - transform.position);
+                var dist = explosionRadius - Vector3.Distance(player.transform.position, transform.position);
+                player.GetComponent<TarodevController.PlayerController>().ExtMovement += direction * dist * explosionPower;
+            }
+        }
         Destroy(gameObject);
-        GameObject player = GameObject.Find("player");
-        player.GetComponent<TarodevController.PlayerController>().transform.position += new Vector3(0, 5, 0);
+        
     }
 }
