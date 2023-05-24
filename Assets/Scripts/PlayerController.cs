@@ -42,9 +42,11 @@ namespace TarodevController {
             CalculateJumpApex(); // Affects fall speed, so calculate before gravity
             CalculateGravity(); // Vertical movement
             CalculateJump(); // Possibly overrides vertical
-            _currentHorizontalSpeed += ExtMovement.x;
-            _currentVerticalSpeed += ExtMovement.y;
-            ExtMovement = Vector3.zero;
+            if(ExtMovement != Vector3.zero)
+            {
+                Explode();
+            }
+            
             
 
             MoveCharacter(); // Actually perform the axis movement
@@ -163,7 +165,18 @@ namespace TarodevController {
                 _currentHorizontalSpeed += Input.X * _acceleration * Time.deltaTime;
 
                 // clamped by max frame movement
-                _currentHorizontalSpeed = Mathf.Clamp(_currentHorizontalSpeed, -_moveClamp, _moveClamp);
+                //_currentHorizontalSpeed = Mathf.Clamp(_currentHorizontalSpeed, -_moveClamp, _moveClamp);
+                if(_currentHorizontalSpeed < -_moveClamp || _currentHorizontalSpeed > _moveClamp)
+                {
+                    if(_currentHorizontalSpeed > 0)
+                    {
+                        _currentHorizontalSpeed -= 0.25f * (_currentHorizontalSpeed - _moveClamp);
+                    }
+                    else
+                    {
+                        _currentHorizontalSpeed -= 0.25f * (_currentHorizontalSpeed - -_moveClamp);
+                    }
+                }
 
                 // Apply bonus at the apex of a jump
                 var apexBonus = Mathf.Sign(Input.X) * _apexBonus * _apexPoint;
@@ -255,6 +268,25 @@ namespace TarodevController {
                 if (_currentVerticalSpeed > 0) _currentVerticalSpeed = 0;
             }
         }
+
+        #endregion
+
+        #region Explode
+
+        private void Explode()
+        {
+            //if(_currentHorizontalSpeed >= 0 ^ ExtMovement.x >= 0){
+            //    _currentHorizontalSpeed = 0;
+            ///}
+            if (_currentVerticalSpeed >= 0 ^ ExtMovement.y >= 0)
+            {
+                _currentVerticalSpeed = 0;
+            }
+            _currentHorizontalSpeed += ExtMovement.x;
+            _currentVerticalSpeed += ExtMovement.y;
+            ExtMovement = Vector3.zero;
+        }
+
 
         #endregion
 

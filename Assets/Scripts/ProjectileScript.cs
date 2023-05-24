@@ -44,10 +44,14 @@ public class ProjectileScript : MonoBehaviour
                 var player = hitObjects[i];
                 var direction = Vector3.Normalize(player.transform.position - transform.position);
                 var dist = explosionRadius - Vector3.Distance(player.transform.position, transform.position);
-                player.GetComponent<TarodevController.PlayerController>().ExtMovement += direction * dist * explosionPower;
+                if(player.GetComponent<TarodevController.PlayerController>().ExtMovement == Vector3.zero)
+                {
+                    player.GetComponent<TarodevController.PlayerController>().ExtMovement += direction * dist * explosionPower;
+                }
             }
         }
         Destroy(gameObject);
+        Debug.Log("aawawa");
         
     }
 }
