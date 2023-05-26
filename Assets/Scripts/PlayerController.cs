@@ -27,7 +27,8 @@ namespace TarodevController {
         private bool _active;
         void Awake() => Invoke(nameof(Activate), 0.5f);
         void Activate() =>  _active = true;
-        
+       
+
         private void Update() {
             if(!_active) return;
             // Calculate velocity
