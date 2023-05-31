@@ -34,10 +34,10 @@ namespace TarodevController {
             // Calculate velocity
             Velocity = (transform.position - _lastPosition) / Time.deltaTime;
             _lastPosition = transform.position;
-            
+
+            RunCollisionChecks();
 
             GatherInput();
-            RunCollisionChecks();
 
             CalculateWalk(); // Horizontal movement
             CalculateJumpApex(); // Affects fall speed, so calculate before gravity
@@ -51,6 +51,7 @@ namespace TarodevController {
             
 
             MoveCharacter(); // Actually perform the axis movement
+
         }
 
 
