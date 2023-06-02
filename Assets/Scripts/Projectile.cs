@@ -10,10 +10,12 @@ public class Projectile : MonoBehaviour
     public bool canFire;
     public float timer;
     public float cooldown;
+    public bool ammo;
     // Start is called before the first frame update
     void Start()
     {
         mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+        ammo = true;
     }
 
     // Update is called once per frame
@@ -37,8 +39,9 @@ public class Projectile : MonoBehaviour
             }
         }
 
-        if (Input.GetMouseButton(0) && canFire)
+        if (Input.GetMouseButton(0) && canFire && ammo)
         {
+            ammo = false;
             canFire = false;
             Instantiate(bullet, transform.position, Quaternion.identity);
         }

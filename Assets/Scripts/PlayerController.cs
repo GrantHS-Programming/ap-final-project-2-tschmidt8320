@@ -19,6 +19,8 @@ namespace TarodevController {
         public Vector3 RawMovement { get; set; }
         public Vector3 ExtMovement;
         public bool Grounded => _colDown;
+        public bool dead = false;
+        public Vector3 respawnPoint = Vector3.zero;
 
         private Vector3 _lastPosition;
         private float _currentHorizontalSpeed, _currentVerticalSpeed;
@@ -51,6 +53,12 @@ namespace TarodevController {
             
 
             MoveCharacter(); // Actually perform the axis movement
+
+            if (dead)
+            {
+                Respawn();
+                dead = false;
+            }
 
         }
 
@@ -91,18 +99,32 @@ namespace TarodevController {
             // Ground
             LandingThisFrame = false;
             var groundedCheck = RunDetection(_raysDown);
-            if (_colDown && !groundedCheck) _timeLeftGrounded = Time.time; // Only trigger when first leaving
-            else if (!_colDown && groundedCheck) {
+            if (_colDown && !groundedCheck)
+            {
+                _timeLeftGrounded = Time.time;
+            }// Only trigger when first leaving
+            else if (!_colDown && groundedCheck)
+            {
                 _coyoteUsable = true; // Only trigger when first touching
                 LandingThisFrame = true;
             }
 
             _colDown = groundedCheck;
+            if (_colDown)
+            {
+                GetComponentInChildren<Projectile>().ammo = true;
+            }
 
             // The rest
             _colUp = RunDetection(_raysUp);
             _colLeft = RunDetection(_raysLeft);
             _colRight = RunDetection(_raysRight);
+
+
+            if(_colDown && _colUp && _colLeft && _colRight)
+            {
+                dead = true;
+            }
 
             bool RunDetection(RayRange range) {
                 return EvaluateRayPositions(range).Any(point => Physics2D.Raycast(point, range.Dir, _detectionRayLength, _groundLayer));
@@ -156,18 +178,19 @@ namespace TarodevController {
 
         #region Walk
 
-        [Header("WALKING")] [SerializeField] private float _acceleration = 90;
-        [SerializeField] private float _moveClamp = 13;
+        // [Header("WALKING")] [SerializeField] private float _acceleration = 90;
+        // [SerializeField] private float _moveClamp = 13;
         [SerializeField] private float _deAcceleration = 60f;
         [SerializeField] private float _apexBonus = 2;
 
         private void CalculateWalk() {
             if (Input.X != 0) {
                 // Set horizontal move speed
-                _currentHorizontalSpeed += Input.X * _acceleration * Time.deltaTime;
+                //_currentHorizontalSpeed += Input.X * _acceleration * Time.deltaTime;
 
                 // clamped by max frame movement
                 //_currentHorizontalSpeed = Mathf.Clamp(_currentHorizontalSpeed, -_moveClamp, _moveClamp);
+                /*
                 if(_currentHorizontalSpeed < -_moveClamp || _currentHorizontalSpeed > _moveClamp)
                 {
                     if(_currentHorizontalSpeed > 0)
@@ -179,6 +202,7 @@ namespace TarodevController {
                         _currentHorizontalSpeed -= 0.25f * (_currentHorizontalSpeed - -_moveClamp);
                     }
                 }
+                */
 
                 // Apply bonus at the apex of a jump
                 var apexBonus = Mathf.Sign(Input.X) * _apexBonus * _apexPoint;
@@ -186,7 +210,10 @@ namespace TarodevController {
             }
             else {
                 // No input. Let's slow the character down
-                _currentHorizontalSpeed = Mathf.MoveTowards(_currentHorizontalSpeed, 0, _deAcceleration * Time.deltaTime);
+                if (_colDown)
+                {
+                    _currentHorizontalSpeed = Mathf.MoveTowards(_currentHorizontalSpeed, 0, _deAcceleration * Time.deltaTime);
+                }
             }
 
             if (_currentHorizontalSpeed > 0 && _colRight || _currentHorizontalSpeed < 0 && _colLeft) {
@@ -267,7 +294,14 @@ namespace TarodevController {
             }
 
             if (_colUp) {
-                if (_currentVerticalSpeed > 0) _currentVerticalSpeed = 0;
+                Debug.Log("colup");
+
+                if (_currentVerticalSpeed >= 0)
+                {
+                    _currentVerticalSpeed = 0;
+                    Debug.Log("ceiling a");
+                    // transform.position -= new Vector3(0, -0.1f, 0);
+                }
             }
         }
 
@@ -333,6 +367,17 @@ namespace TarodevController {
 
                 positionToMoveTo = posToTry;
             }
+        }
+
+        #endregion
+
+        #region die
+
+        private void Respawn()
+        {
+            transform.position = respawnPoint;
+            _currentHorizontalSpeed = 0;
+            _currentVerticalSpeed = 0;
         }
 
         #endregion

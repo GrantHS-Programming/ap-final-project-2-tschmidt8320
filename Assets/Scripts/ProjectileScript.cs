@@ -16,6 +16,7 @@ public class ProjectileScript : MonoBehaviour
     {
         initTime = Time.timeSinceLevelLoad;
         mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+        Physics2D.IgnoreCollision(GetComponent<Collider2D>(), GameObject.FindGameObjectWithTag("Player").GetComponent<Collider2D>());
         rb = GetComponent<Rigidbody2D>();
         mousePos = mainCam.ScreenToWorldPoint(Input.mousePosition);
         Vector3 direction = mousePos - transform.position;
@@ -51,7 +52,6 @@ public class ProjectileScript : MonoBehaviour
             }
         }
         Destroy(gameObject);
-        Debug.Log("aawawa");
         
     }
 }
