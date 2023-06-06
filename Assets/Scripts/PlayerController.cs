@@ -24,7 +24,7 @@ namespace TarodevController {
 
         private Vector3 _lastPosition;
         private float _currentHorizontalSpeed, _currentVerticalSpeed;
-
+        private bool touchingCheck = false;
         // This is horrible, but for some reason colliders are not fully established when update starts...
         private bool _active;
         void Awake() => Invoke(nameof(Activate), 0.5f);
@@ -49,8 +49,17 @@ namespace TarodevController {
             {
                 Explode();
             }
-            
-            
+
+            if (Physics2D.OverlapBox(transform.position - new Vector3(0, 0.1f, 0), _characterBounds.size, 0, _checkLayer) && !touchingCheck)
+            {
+                respawnPoint = transform.position;
+                touchingCheck = true;
+                Debug.Log("a");
+            }
+            else if(!Physics2D.OverlapBox(transform.position - new Vector3(0, 0.1f, 0), _characterBounds.size, 0, _checkLayer))
+            {
+                touchingCheck = false;
+            }
 
             MoveCharacter(); // Actually perform the axis movement
 
@@ -82,6 +91,8 @@ namespace TarodevController {
 
         [Header("COLLISION")] [SerializeField] private Bounds _characterBounds;
         [SerializeField] private LayerMask _groundLayer;
+        [SerializeField] private LayerMask _checkLayer;
+
         [SerializeField] private int _detectorCount = 3;
         [SerializeField] private float _detectionRayLength = 0.1f;
         [SerializeField] [Range(0.1f, 0.3f)] private float _rayBuffer = 0.1f; // Prevents side detectors hitting the ground
@@ -294,12 +305,10 @@ namespace TarodevController {
             }
 
             if (_colUp) {
-                Debug.Log("colup");
 
                 if (_currentVerticalSpeed >= 0)
                 {
                     _currentVerticalSpeed = 0;
-                    Debug.Log("ceiling a");
                     // transform.position -= new Vector3(0, -0.1f, 0);
                 }
             }
@@ -356,12 +365,13 @@ namespace TarodevController {
                     transform.position = positionToMoveTo;
 
                     // We've landed on a corner or hit our head on a ledge. Nudge the player gently
+                    
                     if (i == 1) {
                         if (_currentVerticalSpeed < 0) _currentVerticalSpeed = 0;
                         var dir = transform.position - hit.transform.position;
                         transform.position += dir.normalized * move.magnitude;
                     }
-
+                    
                     return;
                 }
 
