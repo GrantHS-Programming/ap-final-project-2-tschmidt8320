@@ -61,6 +61,11 @@ namespace TarodevController {
                 touchingCheck = false;
             }
 
+            if (Physics2D.OverlapBox(transform.position, _characterBounds.size, 0, _hazardLayer))
+            {
+                dead = true;
+            }
+
             MoveCharacter(); // Actually perform the axis movement
 
             if (dead)
@@ -92,6 +97,7 @@ namespace TarodevController {
         [Header("COLLISION")] [SerializeField] private Bounds _characterBounds;
         [SerializeField] private LayerMask _groundLayer;
         [SerializeField] private LayerMask _checkLayer;
+        [SerializeField] private LayerMask _hazardLayer;
 
         [SerializeField] private int _detectorCount = 3;
         [SerializeField] private float _detectionRayLength = 0.1f;
@@ -323,13 +329,16 @@ namespace TarodevController {
             //if(_currentHorizontalSpeed >= 0 ^ ExtMovement.x >= 0){
             //    _currentHorizontalSpeed = 0;
             ///}
+            Debug.Log(ExtMovement);
             if (_currentVerticalSpeed >= 0 ^ ExtMovement.y >= 0)
             {
                 _currentVerticalSpeed = 0;
             }
             _currentHorizontalSpeed += ExtMovement.x;
             _currentVerticalSpeed += ExtMovement.y;
+            Debug.Log(_currentVerticalSpeed);
             ExtMovement = Vector3.zero;
+            _endedJumpEarly = false;
         }
 
 
